@@ -1,0 +1,5 @@
+(executable
+ (name presigner)
+ (libraries lwt.unix cmdliner aws-s3-lwt rresult)
+ (preprocess (pps lwt_ppx ocaml-monadic)))
+
