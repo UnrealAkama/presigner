@@ -1,12 +1,23 @@
 open Aws_s3
 
 exception Incorrect_Time_Format of string
+exception Incorrect_Bucket_Name of string
 
 let verb_to_string = function
   | `Get -> "GET"
   | `Put -> "PUT"
 
-let main region path bucket (verb : [`Get | `Put]) duration gen_command =
+let get_bucket url =
+  match Uri.host url with
+  | Some b -> b
+  | None -> raise (Incorrect_Bucket_Name "Need a bucket in the url.")
+
+let parse_uri url =
+  let bucket = get_bucket url in
+  let path = Uri.path url in
+  (bucket, path)
+
+let main region url (verb : [`Get | `Put]) duration gen_command =
   let%lwt _credentials = match%lwt Aws_s3_lwt.Credentials.Helper.get_credentials () with
   | Ok x -> Lwt.return x
   | Error e -> raise e
@@ -23,6 +34,7 @@ let main region path bucket (verb : [`Get | `Put]) duration gen_command =
           (Incorrect_Time_Format "Current time isn't formatted correctly!? (this generally shouldn't happen unless something is very wrong.)")
   in
   let region = Region.of_string region in
+  let bucket, path = parse_uri url in
   let presigned = ( Authorization.make_presigned_url ~credentials ~date ~region ~path ~bucket ~verb
         ~duration ()
     |> Uri.to_string ) in
@@ -35,13 +47,17 @@ let main region path bucket (verb : [`Get | `Put]) duration gen_command =
 
 open Cmdliner
 
+let uri =
+  let parse s = Ok (Uri.of_string s) in
+  Arg.conv (parse, Uri.pp_hum)
+
 let region =
   let doc = "What region the upload/download objects are from." in
   Arg.(required & pos 0 (some string) None & info [] ~docv:"REGION" ~doc)
 
-let path =
-  let doc = "What path to upload/download objects from." in
-  Arg.(required & pos 1 (some string) None & info [] ~docv:"PATH" ~doc)
+let url =
+  let doc = "The S3 url to generate the presigned url from." in
+  Arg.(required & pos 1 (some uri) None & info [] ~docv:"URL" ~doc)
 
 let bucket =
   let doc = "Bucket that the path is located in." in
@@ -54,13 +70,13 @@ let verb =
 
 let duration  =
   let doc = "For how many seconds the link should stay active." in
-  Arg.(value & opt int 1800 & info ["d"; "duration"] ~docv:"duration" ~doc)
+  Arg.(value & opt int 21600 & info ["d"; "duration"] ~docv:"duration" ~doc)
 
 let gen_command =
   let doc = "Generates a complete curl command for usage." in
   Arg.(value & flag & info ["c"; "command"] ~doc)
 
-let main_t = Term.(const Lwt_main.run $ (const main $ region $ path $ bucket $ verb $ duration $ gen_command))
+let main_t = Term.(const Lwt_main.run $ (const main $ region $ url $ verb $ duration $ gen_command))
 
 let info =
   let doc = "Creates a simple link to a file for either uploading or downloading from curl." in
