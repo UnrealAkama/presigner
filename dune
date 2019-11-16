@@ -1,5 +1,5 @@
 (executable
  (name presigner)
- (libraries lwt.unix cmdliner aws-s3-lwt rresult cohttp cohttp-lwt-unix)
+ (libraries lwt.unix cmdliner aws-s3-lwt rresult cohttp cohttp-lwt-unix ptime ptime.clock.os)
  (preprocess (pps lwt_ppx ocaml-monadic)))
 
