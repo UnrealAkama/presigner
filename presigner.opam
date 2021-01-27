@@ -1,10 +1,10 @@
 opam-version: "1.2"
-maintainer: "Adam K. Ringwood <adam@endgame.com>"
-authors: [ "Adam K. Ringwood <adam@endgame.com>" ]
+maintainer: "Adam Ringwood <adam@nexadmin.com>"
+authors: [ "Adam Ringwood <adam@nexadmin.com>" ]
 license: "MIT"
-homepage: "https://git.endgames.local/adam/charon"
-dev-repo: "https://git.endgames.local/adam/charon"
-bug-reports: "https://git.endgames.local/adam/charon"
+homepage: "https://github.com/unrealakama/presigner"
+dev-repo: "https://github.com/unrealakama/presigner"
+bug-reports: "https://github.com/unrealakama/presigner"
 build: ["dune" "build" "@install"]
 build-test: ["dune" "build" "@runtest"]
 build-doc: [ "dune" "build" "@doc" ]
@@ -15,5 +15,6 @@ depends: [
   "lwt_ppx"
   "ocaml-monadic" {>= "0.4.0"}
   "aws-s3"
+  "aws-s3-lwt"
 ]
 available: [ ocaml-version >= "4.05.0" ]

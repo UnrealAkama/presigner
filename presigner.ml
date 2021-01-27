@@ -40,7 +40,7 @@ let process_body b default =
         Str.matched_group 1 b )
 
 (*A bunch of the formatting/structure for this code was borrowed from https://github.com/andersfugmann/aws-s3 *)
-let get_region ~credentials ~bucket () =
+let get_region ~(credentials : Credentials.t) ~bucket () =
   let service = "s3" in
   let now = Ptime_clock.now () in
   let (y, m, d), ((h, mi, s), _) = Ptime.to_date_time now in
@@ -63,6 +63,10 @@ let get_region ~credentials ~bucket () =
       headers
       [("Host", host); ("Date", formatted_date)]
   in
+  let headers = match credentials.token with
+  | Some t -> Headers.add ~key:"X-Amz-Security-Token" ~value:t headers
+  | None -> headers
+  in
   let scope = Authorization.make_scope ~date ~region ~service in
   let signing_key =
     Authorization.make_signing_key ~date ~region ~service ~credentials ()
@@ -84,6 +88,10 @@ let get_region ~credentials ~bucket () =
   let headers = Cohttp.Header.add cohttp_headers "Authorization" auth_header in
   let headers = Cohttp.Header.add headers "Date" formatted_date in
   let headers = Cohttp.Header.add headers "x-amz-content-sha256" empty_hash in
+  let headers = match credentials.token with
+  | Some t -> Cohttp.Header.add headers "X-Amz-Security-Token" t
+  | None -> headers
+  in
   let%lwt _resp, body =
     Cohttp_lwt_unix.Client.get (Uri.make ~scheme ~host ~path ()) ~headers
   in
@@ -91,17 +99,12 @@ let get_region ~credentials ~bucket () =
   Lwt.return (Region.of_string (process_body body_string region))
 
 let main url (verb : [`Get | `Put]) duration gen_command region =
-  let%lwt _credentials =
+  let%lwt credentials =
     match%lwt Aws_s3_lwt.Credentials.Helper.get_credentials () with
     | Ok x ->
         Lwt.return x
     | Error e ->
         raise e
-  in
-  let credentials =
-    Credentials.make ~access_key:_credentials.Credentials.access_key
-      ~secret_key:(String.trim _credentials.Credentials.secret_key)
-      ()
   in
   let date =
     match Ptime.of_float_s (Unix.gettimeofday ()) with
