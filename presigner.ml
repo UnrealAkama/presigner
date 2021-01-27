@@ -98,9 +98,9 @@ let get_region ~(credentials : Credentials.t) ~bucket () =
   let%lwt body_string = Cohttp_lwt.Body.to_string body in
   Lwt.return (Region.of_string (process_body body_string region))
 
-let main url (verb : [`Get | `Put]) duration gen_command region =
+let main url (verb : [`Get | `Put]) duration gen_command region profile =
   let%lwt credentials =
-    match%lwt Aws_s3_lwt.Credentials.Helper.get_credentials () with
+    match%lwt Aws_s3_lwt.Credentials.Helper.get_credentials ?profile () with
     | Ok x ->
         Lwt.return x
     | Error e ->
@@ -173,10 +173,14 @@ let gen_command =
   let doc = "Generates a mostly complete curl command for usage." in
   Arg.(value & flag & info ["c"; "command"] ~doc)
 
+let profile =
+  let doc = "AWS profile to user for generating keys." in
+  Arg.(value & opt (some string) None & info ["p"; "profile"] ~doc)
+
 let main_t =
   Term.(
     const Lwt_main.run
-    $ (const main $ url $ verb $ duration $ gen_command $ region))
+    $ (const main $ url $ verb $ duration $ gen_command $ region $ profile))
 
 let info =
   let doc =
