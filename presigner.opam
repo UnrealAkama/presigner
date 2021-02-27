@@ -3,8 +3,9 @@ maintainer: "Adam Ringwood <adam@nexadmin.com>"
 authors: [ "Adam Ringwood <adam@nexadmin.com>" ]
 license: "MIT"
 homepage: "https://github.com/unrealakama/presigner"
-dev-repo: "https://github.com/unrealakama/presigner"
+dev-repo: "git+ssh://git@github.com/UnrealAkama/aws-s3.git"
 bug-reports: "https://github.com/unrealakama/presigner"
+synopsis: "Small cli tool to generate presigned links."
 build: ["dune" "build" "@install"]
 build-test: ["dune" "build" "@runtest"]
 build-doc: [ "dune" "build" "@doc" ]
