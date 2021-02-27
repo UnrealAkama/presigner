@@ -16,6 +16,7 @@ depends: [
   "lwt_ppx"
   "cohttp-lwt-unix"
   "ocaml-monadic" {>= "0.4.0"}
+  "rresult"
   "aws-s3"
   "aws-s3-lwt"
 ]
