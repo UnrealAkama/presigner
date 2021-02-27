@@ -20,10 +20,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Use OCaml 4.07.1
+      - name: Use OCaml 4.10.0
         uses: avsm/setup-ocaml@v1
         with:
-          ocaml-version: 4.07.1
+          ocaml-version: 4.10.0
 
       - run: opam pin add presigner.dev . --no-action
 
