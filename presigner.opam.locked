@@ -114,15 +114,15 @@ depends: [
   "yojson" {= "1.7.0"}
   "zarith" {= "1.11"}
 ]
-name: "presigner"
-version: "dev"
 pin-depends: [
   [
     "aws-s3-lwt.4.5.1"
-    "git+ssh://git@github.com/UnrealAkama/aws-s3.git#cred_fetch"
+    "git+https://github.com/UnrealAkama/aws-s3.git#cred_fetch"
   ]
   [
     "aws-s3.4.5.1"
-    "git+ssh://git@github.com/UnrealAkama/aws-s3.git#cred_fetch"
+    "git+https://github.com/UnrealAkama/aws-s3.git#cred_fetch"
   ]
 ]
+name: "presigner"
+version: "dev"
