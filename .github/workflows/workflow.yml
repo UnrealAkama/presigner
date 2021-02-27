@@ -29,7 +29,7 @@ jobs:
 
       - run: opam depext presigner --yes --with-doc --with-test
         env:
-          OPAMSOLVERTIMEOUT: 120
+          OPAMSOLVERTIMEOUT: 300
 
       - run: opam install . --deps-only --with-doc --with-test
 
